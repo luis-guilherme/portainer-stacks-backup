@@ -41,7 +41,8 @@ for index in "${!stack_name_array[@]}"; do
 
         curl -k -s -X GET "${API_ENDPOINT}/stacks/$stack_id/file" -H "X-API-Key:${API_KEY}" | jq -r '.StackFileContent' > ${STACK_BACKUP_DIR}/docker_compose_$stack_name.yml
 
-        stack_volumes=$(curl -k -s -X GET "${API_ENDPOINT}/stacks/$stack_id/file" -H "X-API-Key:${API_KEY}" | jq -r '.StackFileContent' | yq '.services[].volumes' - | cut -d ":" -f 1 | sed 's/^- //')
+        # get volumes list, remove lines that have comment "#ignore-backup", get contents before ":",  remove contents after "#" (all comments), remove starting "- " and delete empty lines
+        stack_volumes=$(curl -k -s -X GET "${API_ENDPOINT}/stacks/$stack_id/file" -H "X-API-Key:${API_KEY}" | jq -r '.StackFileContent' | yq '.services[].volumes' - | grep -v "#ignore-backup" - |cut -d ":" -f 1 | cut -d "#" -f 1 | sed 's/^- //' | sed '/^$/d')
         IFS=$'\n' read -rd '' -a tmp_stack_volume_array  <<<"$stack_volumes"
         stack_volume_array=()
 
