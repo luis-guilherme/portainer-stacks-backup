@@ -56,7 +56,7 @@ for index in "${!stack_name_array[@]}"; do
         done
 
         if [[ "${#stack_volume_array[@]}" -gt 0 ]]; then
-            sudo tar -czvf "${STACK_BACKUP_DIR}/${stack_name}.tar.gz" "${stack_volume_array[@]}"
+            sudo tar -czvf "${STACK_BACKUP_DIR}/${stack_name}.tar.gz" --exclude={'*.log','*.bak','*.tmp','*.sock','cache'} "${stack_volume_array[@]}"
         else
             echo "No volumes to backup"
         fi
@@ -73,7 +73,7 @@ for index in "${!stack_name_array[@]}"; do
         fi
 
         if [[ "${#stack_volume_array[@]}" -gt 0 ]]; then
-            scp -r "${BACKUP_DIR}/${formatted_date}" "${NET_BACKUP}"
+            rsync -avP -r "${BACKUP_DIR}/${formatted_date}" "${NET_BACKUP}"
             rm -rf "${BACKUP_DIR}/${formatted_date}"
         fi
 
